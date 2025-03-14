@@ -1,15 +1,44 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import Button from './ui/Button.vue';
+ 
+import { useAuth } from '@/composables/useAuth'
+import { useRouter } from 'vue-router'
 
-const homeRef = ref<HTMLElement | null>(null) // Template ref untuk section
+const { isAuthenticated } = useAuth()
+const router = useRouter()
 
-// Props atau bisa juga inject/injectable tergantung kebutuhan
 const props = defineProps<{
-    isAuthenticated: boolean
-    setAuthModalOpen: (val: boolean) => void
-    setIsBookingModalOpen: (val: boolean) => void
+  setAuthModalOpen: (val: boolean) => void
 }>()
+
+const goToBooking = () => {
+  if (!isAuthenticated.value) {
+    props.setAuthModalOpen(true)
+    openLogin()
+  } else {
+    router.push('/booking')
+  }
+} 
+const showLogin = ref(false)
+const showRegister = ref(false)
+// Fungsi untuk buka modal login, tutup register
+const openLogin = () => {
+  showLogin.value = true
+  showRegister.value = false
+}
+
+// Fungsi untuk buka modal register, tutup login
+const openRegister = () => {
+  showRegister.value = true
+  showLogin.value = false
+}
+
+// Fungsi untuk tutup semua modal
+const closeModals = () => {
+  showLogin.value = false
+  showRegister.value = false
+}
 </script>
 
 <template>
@@ -35,14 +64,12 @@ const props = defineProps<{
                     <Button size="lg">
                         Get Started
                     </Button>
-                    <Button size="lg" variant="outline"
-                        class="border-white text-blue-500 hover:bg-white/10 hover:text-blue-400 bg-white" @click="
-                            !isAuthenticated
-                                ? setAuthModalOpen(true)
-                                : setIsBookingModalOpen(true)
-                            ">
-                        Booking Now
-                    </Button>
+                    <Button
+    size="lg"  
+    @click="goToBooking"
+  >
+    Booking Now
+  </Button>
                 </div>
             </div>
         </div>
@@ -56,4 +83,14 @@ const props = defineProps<{
             </svg>
         </div>
     </section>
+    <LoginModal
+      :show="showLogin"
+      @close="closeModals"
+      @open-register="openRegister"
+    />
+  <RegisterModal
+      :show="showRegister"
+      @close="closeModals"
+      @open-login="openLogin"
+    />
 </template>

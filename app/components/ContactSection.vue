@@ -6,6 +6,8 @@ import Label from './ui/Label.vue'
 import Button from './ui/Button.vue'
 import Select from './ui/Select.vue'
 import ContactCard from './ContactCard.vue'
+
+
 </script>
 
 
@@ -53,16 +55,16 @@ import ContactCard from './ContactCard.vue'
                 <h3 class="text-2xl font-bold mb-6">Kirim Testimonial</h3>
                 <form class="space-y-4">
                   <div class="grid gap-2">
-                    <Label>Nama</Label>
-                    <Input placeholder="Nama Lengkap" />
+                    <!-- <Label>Nama</Label> -->
+                    <Input placeholder="Nama Lengkap"  label="Nama Lengkap" name="nama_lengkap" />
                   </div>
                   <div class="grid gap-2">
-                    <Label>Email</Label>
-                    <Input type="email" placeholder="email@example.com" />
+                    <!-- <Label>Email</Label> -->
+                    <Input type="email"  label="Email" placeholder="email@example.com" name="email" />
                   </div>
                   <div class="grid gap-2">
-                    <Label>Rating</Label>
-                    <Select
+                    <!-- <Label>Rating</Label> -->
+                    <Select name="rating" label="Rating"
                       :options="[
                         { value: '5', label: '⭐⭐⭐⭐⭐ (Sangat Puas)' },
                         { value: '4', label: '⭐⭐⭐⭐ (Puas)' },
@@ -75,7 +77,7 @@ import ContactCard from './ContactCard.vue'
                   </div>
                   <div class="grid gap-2">
                     <Label>Testimonial</Label>
-                    <textarea
+                    <textarea name="testimonial"
                       class="min-h-[120px] rounded-md border border-gray-300 px-3 py-2 text-sm"
                       placeholder="Bagikan pengalaman Anda menggunakan layanan kami..."
                     />

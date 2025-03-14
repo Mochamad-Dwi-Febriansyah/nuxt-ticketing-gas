@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Button from '~/components/ui/Button.vue'
-import Card from '~/components/ui/Card.vue'
-import CardContent from '~/components/ui/CardContent.vue'
+import { useUserBranch } from '~/composables/user/useBranch'
+import type { BranchForm } from '~/composables/user/useBranch'
 
 const props = defineProps({
   name: String,
@@ -12,15 +12,11 @@ const props = defineProps({
 
 const isAuthenticated = ref(false)
 const authModalOpen = ref(false)
-const bookingModalOpen = ref(false)
-const aboutRef = ref<HTMLElement | null>(null)
-const featuresRef = ref<HTMLElement | null>(null)
- 
+const bookingModalOpen = ref(false) 
 const setAuthModalOpen = (val: boolean) => (authModalOpen.value = val)
 const setIsBookingModalOpen = (val: boolean) => (bookingModalOpen.value = val)
  
-const currentTestimonial = ref(0)
-const testimonialsRef = ref<HTMLElement | null>(null)
+const currentTestimonial = ref(0) 
 
 const nextTestimonial = () => {
   currentTestimonial.value = (currentTestimonial.value + 1) % testimonials.length
@@ -60,10 +56,31 @@ const steps = [
     image: '/images/ambillpj.svg'
   }
 ]
+const homeRef = ref<HTMLElement | null>(null)
+const aboutRef = ref<HTMLElement | null>(null)
+const featuresRef = ref<HTMLElement | null>(null)
+const testimonialsRef = ref<HTMLElement | null>(null)
+const stepsRef = ref<HTMLElement | null>(null)
+const contactRef = ref<HTMLElement | null>(null)
+
+const { fetchBranches } = useUserBranch()
+
+const branches = ref<BranchForm[]>([]) // State untuk simpan data branch
+const error = ref<string | null>(null) // State untuk error handling
+const isLoading = ref<boolean>(true)   // State loading
+
+
 </script>
 
 <template>
-  <NuxtLayout>
+    <NuxtLayout
+    :home-ref="homeRef"
+    :about-ref="aboutRef"
+    :features-ref="featuresRef"
+    :testimonials-ref="testimonialsRef"
+    :steps-ref="stepsRef"
+    :contact-ref="contactRef"
+  >
     <BaseHero :isAuthenticated="isAuthenticated" :setAuthModalOpen="setAuthModalOpen"
       :setIsBookingModalOpen="setIsBookingModalOpen" />
 
@@ -294,7 +311,7 @@ const steps = [
     </div>
   </section>
 
-  <ContactSection />
+  <ContactSection ref="contactRef" />
 
 
   </NuxtLayout>

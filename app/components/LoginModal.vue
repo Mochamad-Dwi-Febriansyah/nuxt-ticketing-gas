@@ -13,7 +13,7 @@ const props = defineProps<{ show: boolean }>()
 const emit = defineEmits(['close', 'open-register'])
 
 // Composables
-const { login } = useAuth()
+const { login, errors } = useAuth()
 const { addNotification } = useNotification()
 const router = useRouter()
 
@@ -42,7 +42,7 @@ const onSubmit = handleSubmit(async (formData) => {
   try {
     const response = await login(formData)
     const role = computed(() => useCookie('role').value) 
-    console.log(role)
+    // console.log(role)
     addNotification('success', response.message || 'Login berhasil!')
     resetForm()
     emit('close')
@@ -51,18 +51,20 @@ const onSubmit = handleSubmit(async (formData) => {
     } else if (role.value === 'admin_cabang') {
       router.push('/dashboard/admin_cabang')
     } else if (role.value === 'user') {
-      router.push('/dashboard/user') // ganti sesuai kebutuhan
+      router.push('/') // ganti sesuai kebutuhan
+      addNotification('success', 'Silahkan bisa booking gas.')
     } else {
       router.push('/') // default redirect
     }
 
   } catch (error: any) {
-    // console.error(error.message)
+    console.error(error)
     addNotification('error', error.message || 'Login gagal, periksa kembali data Anda.')
   } finally {
     isLoading.value = false
   }
 })
+
 </script>
 
 <template>
@@ -86,6 +88,7 @@ const onSubmit = handleSubmit(async (formData) => {
           <div>
             <!-- <label class="font-medium">NIK</label> -->
             <Input name="nik" label="NIK" placeholder="16 digit NIK" required />
+            <p v-if="errors['nik']" class="text-red-500 text-sm">{{ errors['nik'][0] }}</p>
             <!-- <Field name="nik" v-slot="{ field }">
               <Input v-bind="field" placeholder="16 digit NIK" />
             </Field> -->
@@ -95,7 +98,8 @@ const onSubmit = handleSubmit(async (formData) => {
           <!-- Password -->
           <div>
             <!-- <label class="font-medium">Password</label> -->
-            <Input name="password" label="password" placeholder="******" required />
+            <Input name="password"  type="password" label="password" placeholder="******" required />
+            <p v-if="errors['password']" class="text-red-500 text-sm">{{ errors['password'][0] }}</p>
             <!-- <Field name="password" v-slot="{ field }">
               <Input v-bind="field" type="password" placeholder="******" />
             </Field> -->

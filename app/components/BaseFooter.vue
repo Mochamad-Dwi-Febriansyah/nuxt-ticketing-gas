@@ -60,13 +60,14 @@ import Input from './ui/Input.vue';
           <h3 class="text-lg font-bold mb-4">Berlangganan</h3>
           <p class="text-gray-400 mb-4">Dapatkan informasi terbaru dan penawaran spesial.</p>
           <div class="flex">
-            <Input name="email" label="Email" placeholder="Email" required />
+            <!-- <Input name="email" label="" placeholder="Email"   /> -->
+            <!-- <input name="email" type="email" placeholder="Email" /> -->
             <!-- <Input
               type="email"
               placeholder="Email Anda"
               class="bg-gray-800 border-gray-700 text-white rounded-r-none focus-visible:ring-gray-500"
             /> -->
-            <Button class="rounded-l-none">Kirim</Button>
+            <!-- <Button class="rounded-l-none">Kirim</Button> -->
           </div>
         </div>
       </div>

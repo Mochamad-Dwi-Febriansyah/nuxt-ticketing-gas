@@ -7,6 +7,9 @@ import Button from './ui/Button.vue'
 import Input from './ui/Input.vue'
 import { useAuth } from '@/composables/useAuth'
 import { useNotification } from '@/composables/useNotification'
+import { useUserBranch } from '~/composables/user/useBranch'
+import type { BranchForm } from '~/composables/user/useBranch'
+import Select from './ui/Select.vue'
 
 // Props & Emits
 const props = defineProps<{ show: boolean }>()
@@ -36,6 +39,7 @@ const schema = toTypedSchema(
     province: string().nullable(),
     village: string().nullable(),
     postal_code: string().nullable(),
+    branch_id: string().required(),
   })
 )
 
@@ -58,6 +62,46 @@ const onSubmit = handleSubmit(async (formData) => {
     isLoading.value = false
   }
 })
+const { fetchBranches } = useUserBranch()
+
+const branches = ref() // State untuk simpan data branch
+const error = ref<string | null>(null) // State untuk error handling 
+
+
+onMounted(() => {
+  console.log('Component Mounted')
+  fetchData() // Panggil saat pertama kali muncul
+})
+
+// Watch supaya tiap kali props.show true, dia panggil fetchData
+watch(
+  () => props.show,
+  (newVal) => {
+    if (newVal) {
+      console.log('Props show berubah jadi true, fetch data lagi')
+      fetchData()
+    }
+  }
+)
+
+const fetchData = async () => {
+  isLoading.value = true
+  try {
+    console.log('Mulai Fetch Branch')
+    const { data, error: fetchError } = await fetchBranches()
+    console.log('Fetch Data:', data.value?.result)
+    if (fetchError) console.error('Fetch Branch Error:', fetchError)
+    branches.value = data.value?.result.map((branch: any) => ({
+      label: branch.name,
+      value: branch.id
+    }))
+  } catch (err: any) {
+    console.error('General Fetch Error:', err)
+    error.value = err.message
+  } finally {
+    isLoading.value = false
+  }
+}
 </script>
 
 <template>
@@ -76,7 +120,7 @@ const onSubmit = handleSubmit(async (formData) => {
         <form @submit.prevent="onSubmit" class="space-y-4">
           <!-- Nama -->
           <div>
-            <label>Nama Lengkap</label>
+            <!-- <label>Nama Lengkap</label> -->
             <Input name="name" label="Nama Lengkap" placeholder="Nama Lengkap" required />
             <!-- <Field name="name" v-slot="{ field }"><Input v-bind="field" placeholder="Nama Lengkap" /></Field> -->
             <!-- <ErrorMessage name="name" class="text-red-500 text-sm mt-1" /> -->
@@ -85,7 +129,7 @@ const onSubmit = handleSubmit(async (formData) => {
 
           <!-- Email -->
           <div>
-            <label>Email</label>
+            <!-- <label>Email</label> -->
             <Input name="email" label="Email" placeholder="Email" required />
             <!-- <Field name="email" v-slot="{ field }"><Input v-bind="field" placeholder="Email" /></Field>
             <ErrorMessage name="email" class="text-red-500 text-sm mt-1" /> -->
@@ -94,8 +138,8 @@ const onSubmit = handleSubmit(async (formData) => {
 
           <!-- Password -->
           <div>
-            <label>Password</label>
-            <Input name="password" label="Password" placeholder="Password" required />
+            <!-- <label>Password</label> -->
+            <Input name="password" type="password" label="Password" placeholder="Password" required />
             <!-- <Field name="password" v-slot="{ field }"><Input v-bind="field" type="password" placeholder="Password" /></Field>
             <ErrorMessage name="password" class="text-red-500 text-sm mt-1" /> -->
             <p v-if="errors['password']" class="text-red-500 text-sm">{{ errors['password'][0] }}</p>
@@ -103,8 +147,8 @@ const onSubmit = handleSubmit(async (formData) => {
 
           <!-- Konfirmasi Password -->
           <div>
-            <label>Konfirmasi Password</label>
-            <Input name="password_confirmation" label="Konfirmasi Password" placeholder="Konfirmasi Password" required />
+            <!-- <label>Konfirmasi Password</label> -->
+            <Input name="password_confirmation"  type="password" label="Konfirmasi Password" placeholder="Konfirmasi Password" required />
             <!-- <Field name="password_confirmation" v-slot="{ field }"><Input v-bind="field" type="password" placeholder="Konfirmasi Password" /></Field>
             <ErrorMessage name="password_confirmation" class="text-red-500 text-sm mt-1" /> -->
             <p v-if="errors['password_confirmation']" class="text-red-500 text-sm">{{ errors['password_confirmation'][0] }}</p>
@@ -112,7 +156,7 @@ const onSubmit = handleSubmit(async (formData) => {
 
           <!-- NIK -->
           <div>
-            <label>NIK</label>
+            <!-- <label>NIK</label> -->
             <Input name="nik" label="NIK" placeholder="NIK" required />
             <!-- <Field name="nik" v-slot="{ field }"><Input v-bind="field" placeholder="NIK" /></Field> -->
             <!-- <ErrorMessage name="nik" class="text-red-500 text-sm mt-1" /> -->
@@ -121,7 +165,7 @@ const onSubmit = handleSubmit(async (formData) => {
 
           <!-- KK -->
           <div>
-            <label>KK</label>
+            <!-- <label>KK</label> -->
             <Input name="kk" label="KK" placeholder="KK" required />
             <!-- <Field name="kk" v-slot="{ field }"><Input v-bind="field" placeholder="KK" /></Field> -->
             <!-- <ErrorMessage name="kk" class="text-red-500 text-sm mt-1" /> -->
@@ -130,7 +174,7 @@ const onSubmit = handleSubmit(async (formData) => {
 
           <!-- No HP -->
           <div>
-            <label>No HP</label>
+            <!-- <label>No HP</label> -->
             <Input name="phone" label="Nomor HP" placeholder="08xxxxx" required />
             <!-- <Field name="phone" v-slot="{ field }"><Input v-bind="field" placeholder="08xxxxx" /></Field> -->
             <!-- <ErrorMessage name="phone" class="text-red-500 text-sm mt-1" /> -->
@@ -139,46 +183,52 @@ const onSubmit = handleSubmit(async (formData) => {
 
           <!-- Alamat (Opsional) -->
           <div>
-            <label>Alamat (Opsional)</label>
+            <!-- <label>Alamat (Opsional)</label> -->
             <Input name="street_address" label="Jalan, No, RT/RW" placeholder="Jalan, No, RT/RW" required />
             <!-- <Field name="street_address" v-slot="{ field }"><Input v-bind="field" placeholder="Jalan, No, RT/RW" /></Field> -->
             <p v-if="errors['street_address']" class="text-red-500 text-sm">{{ errors['street_address'][0] }}</p>
           </div>
 
           <div>
-            <label>Kelurahan</label>
+            <!-- <label>Kelurahan</label> -->
             <Input name="village" label="Kelurahan/Desa" placeholder="Kelurahan/Desa" required />
             <!-- <Field name="village" v-slot="{ field }"><Input v-bind="field" placeholder="Kelurahan/Desa" /></Field> -->
              <p v-if="errors['village']" class="text-red-500 text-sm">{{ errors['village'][0] }}</p>
           </div>
 
           <div>
-            <label>Kecamatan</label>
+            <!-- <label>Kecamatan</label> -->
             <Input name="subdistrict" label="Kecamatan" placeholder="Kecamatan" required />
             <!-- <Field name="subdistrict" v-slot="{ field }"><Input v-bind="field" placeholder="Kecamatan" /></Field> -->
              <p v-if="errors['subdistrict']" class="text-red-500 text-sm">{{ errors['subdistrict'][0] }}</p>
           </div>
 
           <div>
-            <label>Kabupaten</label>
+            <!-- <label>Kabupaten</label> -->
             <Input name="district" label="Kabupaten" placeholder="Kabupaten" required />
             <!-- <Field name="district" v-slot="{ field }"><Input v-bind="field" placeholder="Kabupaten" /></Field> -->
              <p v-if="errors['district']" class="text-red-500 text-sm">{{ errors['district'][0] }}</p>
           </div>
 
           <div>
-            <label>Provinsi</label>
+            <!-- <label>Provinsi</label> -->
             <Input name="province" label="Province" placeholder="Province" required />
             <!-- <Field name="province" v-slot="{ field }"><Input v-bind="field" placeholder="Provinsi" /></Field> -->
              <p v-if="errors['province']" class="text-red-500 text-sm">{{ errors['province'][0] }}</p>
           </div>
 
           <div>
-            <label>Kode Pos</label>
+            <!-- <label>Kode Pos</label> -->
             <Input name="postal_code" label="Kode Pos" placeholder="Kode Pos" required />
             <!-- <Field name="postal_code" v-slot="{ field }"><Input v-bind="field" placeholder="Kode Pos" /></Field> -->
              <p v-if="errors['postal_code']" class="text-red-500 text-sm">{{ errors['postal_code'][0] }}</p>
           </div>
+          <Select v-if="branches"
+        name="branch_id"
+        label="Cabang"
+        :options="branches"
+        placeholder="Pilih Cabang"
+      />
 
           <!-- Tombol Daftar -->
           <Button type="submit" :disabled="isLoading" class="w-full">

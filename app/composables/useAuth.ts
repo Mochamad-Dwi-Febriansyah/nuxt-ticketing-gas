@@ -54,6 +54,7 @@ export const useAuth = () => {
   const removeRole = () => {
     roleCookie.value = null
   }
+  const isAuthenticated = computed(() => !!tokenCookie.value)
 
   // REGISTER
   const register = async (data: any) => {
@@ -120,6 +121,8 @@ export const useAuth = () => {
   const login = async (data: { nik: string; password: string }) => {
     loading.value = true
     error.value = null
+    errors.value = {}
+
 
     try {
       const { data: res, error: fetchError } = await useFetch<LoginResponse>(`${config().public.apiBase}/v1/auth/login`, {
@@ -127,6 +130,10 @@ export const useAuth = () => {
         body: data,
       })
 
+      if (fetchError.value?.data?.errors) {
+        errors.value = fetchError.value.data.errors
+      } 
+      // console.log("d",fetchError.value?.data?.message)
       if (fetchError.value?.data?.message) {
         throw new Error(fetchError.value.data.message)
       }
@@ -217,5 +224,6 @@ export const useAuth = () => {
     error,
     errors,
     getToken, // Bisa dipakai untuk API lain
+    isAuthenticated
   }
 }
